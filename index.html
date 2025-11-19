@@ -270,3 +270,19 @@
   </script>
 </body>
 </html>
+function openPanelFromHash() {
+  const hash = window.location.hash.replace("#", "");
+  if (!hash) return;
+
+  const targetButton = document.querySelector(`[data-hash="${hash}"]`);
+  if (!targetButton) return;
+
+  const targetId = targetButton.dataset.target;
+  const targetPanel = document.getElementById(targetId);
+  if (!targetPanel) return;
+
+  // 기존에 쓰던 “메뉴 눌렀을 때 패널 여는 로직” 그대로 호출해주면 됨
+  // (지금 코드에 맞게 panels, menuItems 처리 부분 재사용)
+}
+window.addEventListener("DOMContentLoaded", openPanelFromHash);
+window.addEventListener("hashchange", openPanelFromHash);
