@@ -79,8 +79,12 @@
       margin-top: 4px;
     }
 
-    .panel { display: none; }
-    .panel.active { display: block; }
+    .panel {
+      display: none;
+    }
+    .panel.active {
+      display: block;
+    }
 
     .panel-title {
       font-size: 16px;
@@ -117,22 +121,30 @@
     }
 
     @media (min-width: 768px) {
-      body { padding: 40px 16px 60px; }
-      .page { padding: 24px 22px 28px; }
-      header h1 { font-size: 24px; }
+      body {
+        padding: 40px 16px 60px;
+      }
+      .page {
+        padding: 24px 22px 28px;
+      }
+      header h1 {
+        font-size: 24px;
+      }
       .layout {
         flex-direction: row;
         align-items: flex-start;
       }
       .sidebar {
         flex-direction: column;
-        width: 200px;
+        width: 220px;
       }
       .content {
         flex: 1;
         margin-top: 0;
       }
-      .menu-item { width: 100%; }
+      .menu-item {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -241,55 +253,46 @@
     const menuItems = document.querySelectorAll(".menu-item");
     const panels = document.querySelectorAll(".panel");
 
-    function openPanelByButton(button) {
-      const targetId = button.dataset.target;
+    function activatePanelById(id) {
+      panels.forEach((p) => {
+        p.classList.toggle("active", p.id === id);
+      });
 
-      // 메뉴 스타일
-      menuItems.forEach((i) => i.classList.remove("active"));
-      button.classList.add("active");
-
-      // 패널 표시 전환
-      panels.forEach((p) => p.classList.remove("active"));
-      const targetPanel = document.getElementById(targetId);
-      if (targetPanel) targetPanel.classList.add("active");
+      menuItems.forEach((item) => {
+        item.classList.toggle("active", item.dataset.target === id);
+      });
     }
 
-    // 클릭으로 탭 전환
+    function activateFromHash() {
+      const hash = window.location.hash.replace("#", "");
+      if (!hash) return;
+
+      const targetItem = Array.from(menuItems).find(
+        (item) => item.dataset.hash === hash
+      );
+
+      if (targetItem) {
+        const targetId = targetItem.dataset.target;
+        activatePanelById(targetId);
+      }
+    }
+
+    // 메뉴 클릭 시 패널 전환 + 해시 업데이트
     menuItems.forEach((item) => {
       item.addEventListener("click", () => {
-        openPanelByButton(item);
-
+        const targetId = item.dataset.target;
         const hash = item.dataset.hash;
+
+        activatePanelById(targetId);
+
         if (hash) {
-          window.location.hash = hash;
-        } else {
-          history.replaceState(null, "", window.location.pathname);
+          history.replaceState(null, "", "#" + hash);
         }
       });
     });
 
-    // 해시(#intro 등)로 바로 열기
-    function openPanelFromHash() {
-      const hash = window.location.hash.replace("#", "");
-      if (!hash) return;
-
-      const targetButton = document.querySelector(
-        `.menu-item[data-hash="${hash}"]`
-      );
-      if (targetButton) {
-        openPanelByButton(targetButton);
-      }
-    }
-
-    // 첫 로딩 시 해시 처리
-    window.addEventListener("DOMContentLoaded", () => {
-      openPanelFromHash();
-    });
-
-    // 주소의 해시가 바뀔 때마다 처리 (다른 링크에서 이동할 경우 대비)
-    window.addEventListener("hashchange", () => {
-      openPanelFromHash();
-    });
+    // 페이지 처음 로드될 때 해시(#intro 등)에 맞춰서 패널 활성화
+    window.addEventListener("load", activateFromHash);
   </script>
 </body>
 </html>
