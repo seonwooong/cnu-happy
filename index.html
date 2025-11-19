@@ -163,10 +163,10 @@
       <!-- 서랍/메뉴 영역 -->
       <nav class="sidebar">
         <button class="menu-item active" data-target="panel-intro" data-hash="intro">예고편</button>
-        <button class="menu-item" data-target="panel-story2" data-hash="panel-story2">TMEME STORY2</button>
-        <button class="menu-item" data-target="panel-hospital" data-hash="panel-hospital">살리는 병원</button>
-        <button class="menu-item" data-target="panel-issue" data-hash="panel-issue">CNUH 이슈</button>
-        <button class="menu-item" data-target="panel-audio" data-hash="panel-audio">살리는마음 · 주용범 교수</button>
+        <button class="menu-item" data-target="panel-story2" data-hash="story2">TMEME STORY2</button>
+        <button class="menu-item" data-target="panel-hospital" data-hash="hospital">살리는 병원</button>
+        <button class="menu-item" data-target="panel-issue" data-hash="issue">CNUH 이슈</button>
+        <button class="menu-item" data-target="panel-audio" data-hash="audio">살리는마음 · 주용범 교수</button>
       </nav>
 
       <!-- 콘텐츠 영역 -->
@@ -253,20 +253,43 @@
     const menuItems = document.querySelectorAll(".menu-item");
     const panels = document.querySelectorAll(".panel");
 
+    function openPanelByButton(item, updateHash) {
+      const targetId = item.dataset.target;
+
+      // 메뉴 스타일
+      menuItems.forEach((i) => i.classList.remove("active"));
+      item.classList.add("active");
+
+      // 패널 표시 전환
+      panels.forEach((p) => p.classList.remove("active"));
+      const targetPanel = document.getElementById(targetId);
+      if (targetPanel) targetPanel.classList.add("active");
+
+      // 주소창 해시 업데이트 (QR용)
+      if (updateHash && item.dataset.hash) {
+        history.replaceState(null, "", "#" + item.dataset.hash);
+      }
+    }
+
+    // 메뉴 클릭 시 패널 전환
     menuItems.forEach((item) => {
-      item.addEventListener("click", () => {
-        const targetId = item.dataset.target;
-
-        // 메뉴 스타일
-        menuItems.forEach((i) => i.classList.remove("active"));
-        item.classList.add("active");
-
-        // 패널 표시 전환
-        panels.forEach((p) => p.classList.remove("active"));
-        const targetPanel = document.getElementById(targetId);
-        if (targetPanel) targetPanel.classList.add("active");
-      });
+      item.addEventListener("click", () => openPanelByButton(item, true));
     });
+
+    // URL 해시(#intro 등)로 들어왔을 때 해당 패널 열기
+    function openPanelFromHash() {
+      const hash = window.location.hash.replace("#", "");
+      if (!hash) return;
+      const targetButton = document.querySelector(
+        '.menu-item[data-hash="' + hash + '"]'
+      );
+      if (targetButton) {
+        openPanelByButton(targetButton, false);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", openPanelFromHash);
+    window.addEventListener("hashchange", openPanelFromHash);
   </script>
 </body>
 </html>
